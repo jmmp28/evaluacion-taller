@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 
-const url = import.meta.env.VITE_SUPABASE_URL
-const clave = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Se limpia la URL por si se pegó con algo detrás
+// (p. ej. «https://xxxx.supabase.co/rest/v1/» → «https://xxxx.supabase.co»)
+const url = (import.meta.env.VITE_SUPABASE_URL ?? '')
+  .trim()
+  .replace(/\/(rest|auth|storage)\/v1.*$/, '')
+  .replace(/\/+$/, '')
+const clave = (import.meta.env.VITE_SUPABASE_ANON_KEY ?? '').trim()
 
 if (!url || !clave) {
   throw new Error('Faltan VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY (ver .env.example)')
