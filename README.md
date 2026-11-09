@@ -1,10 +1,11 @@
-# Evaluación del taller · web (fases 1 y 2)
+# Evaluación del taller · web (fases 1, 2 y 3)
 
 App web para evaluar a diario desde el móvil. Usa el **mismo proyecto de Supabase que el Inventario** (esquema `evaluacion`) y el mismo inicio de sesión.
 
 **Fase 1 (esta):** entrar · Hoy (cualquier fecha) · evaluar sesiones con notas 0–3/A que se guardan al momento · observaciones automáticas y a mano · actividad Categoría → Proyecto → Tarea (y crear nuevas) · alumnos · exportar CSV · administración de grupos y profesores.
 **Fase 2:** fotos de los proyectos desde el móvil (cámara o galería), por mes y proyecto, también desde cada sesión.
-**Próximas fases:** informes (resumen, por alumno, trabajos del grupo frente a la previsión, por proyecto en A4) · importar el registro de la hoja de Calc.
+**Fase 3:** informes (resumen, por alumno con comentario, trabajos del grupo frente a la previsión, proyectos en A4) y previsión mensual.
+**Próximas fases:** importar el registro de la hoja de Calc.
 
 ---
 
@@ -82,6 +83,17 @@ Se abre a pantalla completa, como una app.
 - Tocando una foto: verla en grande, cambiar la fecha, ponerle pie, **Girar** y **Borrar**.
 - Sólo las ven los profesores del grupo. El plan gratuito de Supabase da 1 GB de almacenamiento: unas 3000 fotos, compartido con el Inventario.
 
+## Informes (fase 3)
+
+Pestaña **Informes**. No necesita SQL nuevo (la tabla `prevision` ya la creó el script 01).
+
+- **Resumen de notas:** por alumno, sesiones, ausencias, % de asistencia, media (0–3) y nota /10 del periodo elegido; debajo, la tabla por trimestres (1T oct–dic, 2T ene–mar, 3T abr–jun), curso y meses, eligiendo qué dato ver.
+- **Informe por alumno:** uno o todos; sus trabajos por Proyecto → Categoría → Tarea con sesiones, faltas, media y nota, y un comentario redactado solo (se puede retocar antes de imprimir). Cada alumno, en una página.
+- **Trabajos del grupo:** lo hecho en el periodo, sin notas, frente a la previsión (Realizada · Parcial · Pendiente · No prevista), con las fotos de cada proyecto.
+- **Proyectos en A4:** una página por proyecto con el título, las categorías y tareas y las fotos repartidas según cuántas sean (más de 12, sigue en otra página).
+- **Previsión:** para cada mes, proyecto (y si quieres categoría, tarea y sesiones previstas). «Copiar la previsión del mes anterior» la rellena de golpe.
+- **Imprimir / PDF:** usa la impresión del navegador. En el ordenador, «Guardar como PDF». En Chrome conviene dejar márgenes «Predeterminados» y marcar «Gráficos de fondo» para que salgan los colores.
+
 ## Estructura
 
 ```
@@ -91,6 +103,7 @@ src/supabase.js                 conexión (esquema «evaluacion»)
 src/contexto.jsx                sesión, profesor y grupo actual
 src/paginas/                    Login, Hoy, Sesion, Alumnos, Ajustes…
 src/fotos.js                    reducir, subir, girar y borrar fotos
+src/informes/                   periodos, cálculos y comentario automático de los informes
 src/componentes/                barra inferior, selector de actividad, panel inferior, visor de fotos
 src/estilos.css                 todos los estilos y colores
 ```
