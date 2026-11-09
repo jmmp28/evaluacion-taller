@@ -4,7 +4,7 @@ import { supabase } from '../supabase'
 import { mensajeError } from '../util'
 
 export default function Alumnos() {
-  const { grupo } = useApp()
+  const { grupo, esAdmin } = useApp()
   const [alumnos, setAlumnos] = useState([])
   const [texto, setTexto] = useState('')
   const [editando, setEditando] = useState(null)      // { id, nombre }
@@ -37,6 +37,17 @@ export default function Alumnos() {
   async function cambiarActivo(a) {
     const { error } = await supabase.from('alumnos').update({ activo: !a.activo }).eq('id', a.id)
     if (error) setMsg({ error: mensajeError(error), aviso: '' })
+    cargar()
+  }
+
+  // Borrar del todo (sólo administradores y sólo alumnos ya dados de baja): se borran también sus notas
+  async function borrar(a) {
+    const { count } = await supabase.from('evaluaciones').select('id', { count: 'exact', head: true }).eq('alumno_id', a.id)
+    const notas = count ? ` y sus ${count} notas` : ''
+    if (!window.confirm(`¿Borrar a ${a.apellidos_nombre}${notas}? No se puede deshacer.`)) return
+    const { error } = await supabase.from('alumnos').delete().eq('id', a.id)
+    if (error) { setMsg({ error: mensajeError(error), aviso: '' }); return }
+    setMsg({ error: '', aviso: `${a.apellidos_nombre} borrado.` })
     cargar()
   }
 
@@ -89,6 +100,9 @@ export default function Alumnos() {
                   <span className="acciones">
                     <button className="boton pequeno" onClick={() => setEditando({ id: a.id, nombre: a.apellidos_nombre })}>Editar</button>
                     <button className="boton pequeno" onClick={() => cambiarActivo(a)}>{a.activo ? 'Dar de baja' : 'Reactivar'}</button>
+                    {!a.activo && esAdmin && (
+                      <button className="boton pequeno peligro-texto" onClick={() => borrar(a)} aria-label={`Borrar a ${a.apellidos_nombre}`}>Borrar</button>
+                    )}
                   </span>
                 </>
               )}
@@ -103,7 +117,7 @@ export default function Alumnos() {
             <textarea rows={5} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={'Alonso García, Lucía\nBenítez Ruiz, Marcos'} />
           </label>
           <button className="boton primario">Añadir</button>
-          <p className="suave pequeno">Dar de baja no borra sus notas: deja de salir en las sesiones nuevas.</p>
+          <p className="suave pequeno">Dar de baja no borra sus notas: deja de salir en las sesiones nuevas.{esAdmin ? ' Para borrar a un alumno del todo (con sus notas), dale de baja y pulsa «Borrar» en la lista «De baja».' : ''}</p>
         </form>
       </main>
     </>
