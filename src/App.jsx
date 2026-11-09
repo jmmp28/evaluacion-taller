@@ -14,6 +14,7 @@ import InfAlumno from './paginas/InfAlumno'
 import InfTrabajos from './paginas/InfTrabajos'
 import InfProyectos from './paginas/InfProyectos'
 import Prevision from './paginas/Prevision'
+import Importar from './paginas/Importar'
 import Ajustes from './paginas/Ajustes'
 
 export default function App() {
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="/informes/trabajos" element={<InfTrabajos />} />
           <Route path="/informes/proyectos" element={<InfProyectos />} />
           <Route path="/prevision" element={<Prevision />} />
+          <Route path="/importar" element={<Importar />} />
           <Route path="/alumnos" element={<Alumnos />} />
           <Route path="/ajustes" element={<Ajustes />} />
           <Route path="/nueva-clave" element={<NuevaClave />} />

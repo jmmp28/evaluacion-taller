@@ -278,3 +278,7 @@ td.sangria { padding-left: 14px; }
   .hoja-a4 { width: 210mm; height: 297mm; aspect-ratio: auto; border: none; box-shadow: none; break-after: page; }
   .hoja-a4:last-child { break-after: auto; }
 }
+
+/* ===== importar ===== */
+.lista-resumen { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+label.boton { cursor: pointer; }

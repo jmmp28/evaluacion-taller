@@ -5,7 +5,7 @@ App web para evaluar a diario desde el móvil. Usa el **mismo proyecto de Supaba
 **Fase 1 (esta):** entrar · Hoy (cualquier fecha) · evaluar sesiones con notas 0–3/A que se guardan al momento · observaciones automáticas y a mano · actividad Categoría → Proyecto → Tarea (y crear nuevas) · alumnos · exportar CSV · administración de grupos y profesores.
 **Fase 2:** fotos de los proyectos desde el móvil (cámara o galería), por mes y proyecto, también desde cada sesión.
 **Fase 3:** informes (resumen, por alumno con comentario, trabajos del grupo frente a la previsión, proyectos en A4) y previsión mensual.
-**Próximas fases:** importar el registro de la hoja de Calc.
+**Importar de Calc:** Ajustes → «Importar de la hoja de Calc» (sólo administradores).
 
 ---
 
@@ -94,6 +94,15 @@ Pestaña **Informes**. No necesita SQL nuevo (la tabla `prevision` ya la creó e
 - **Previsión:** para cada mes, proyecto (y si quieres categoría, tarea y sesiones previstas). «Copiar la previsión del mes anterior» la rellena de golpe.
 - **Imprimir / PDF:** usa la impresión del navegador. En el ordenador, «Guardar como PDF». En Chrome conviene dejar márgenes «Predeterminados» y marcar «Gráficos de fondo» para que salgan los colores.
 
+## Importar los datos de la hoja de Calc
+
+Ajustes → **Importar de la hoja de Calc** (sólo administradores) → elige `Evaluacion_diaria.ods` → revisa el resumen → **Importar**.
+
+- Pasa alumnos (los que ya no están en la hoja «Alumnos» entran de baja), categorías, proyectos y tareas, todas las sesiones con su actividad, notas, ausencias y observaciones, la previsión, la lista de observaciones con la automática de cada nota, y las fotos que van dentro del archivo.
+- El archivo se lee en el navegador y no se modifica.
+- Se puede repetir: lo que ya está en la web se salta (no duplica notas ni fotos). Si un día ya tenía sesión creada en la web, se conserva la de la web.
+- Las categorías y proyectos se pasan a MAYÚSCULAS, como en la web.
+
 ## Estructura
 
 ```
@@ -104,6 +113,7 @@ src/contexto.jsx                sesión, profesor y grupo actual
 src/paginas/                    Login, Hoy, Sesion, Alumnos, Ajustes…
 src/fotos.js                    reducir, subir, girar y borrar fotos
 src/informes/                   periodos, cálculos y comentario automático de los informes
+src/importar/                   lectura del .ods de Calc e importación
 src/componentes/                barra inferior, selector de actividad, panel inferior, visor de fotos
 src/estilos.css                 todos los estilos y colores
 ```

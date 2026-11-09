@@ -83,12 +83,13 @@ async function subirPar(ruta, p) {
 }
 
 // Sube una foto (archivo de la cámara o de la galería) y crea su fila
-export async function subirFoto({ grupoId, proyectoId, fecha, archivo }) {
+// nombre (opcional): nombre fijo del archivo, para no subir dos veces la misma foto al importar
+export async function subirFoto({ grupoId, proyectoId, fecha, archivo, nombre, descripcion }) {
   const p = await preparar(archivo)
-  const ruta = nombreNuevo(grupoId, proyectoId, fecha)
+  const ruta = nombre ? `${grupoId}/${nombre}.jpg` : nombreNuevo(grupoId, proyectoId, fecha)
   await subirPar(ruta, p)
   const { data, error } = await supabase.from('fotos')
-    .insert({ grupo_id: grupoId, proyecto_id: proyectoId, fecha, ruta, ancho: p.ancho, alto: p.alto })
+    .insert({ grupo_id: grupoId, proyecto_id: proyectoId, fecha, ruta, ancho: p.ancho, alto: p.alto, descripcion: descripcion || null })
     .select(CAMPOS_FOTO).single()
   if (error) {
     await supabase.storage.from(BUCKET).remove([ruta, rutaMini(ruta)])

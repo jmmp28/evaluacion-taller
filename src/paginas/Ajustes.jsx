@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useApp } from '../contexto'
 import { supabase } from '../supabase'
 import { fechaCorta, hoyISO, mensajeError } from '../util'
@@ -75,6 +76,14 @@ export default function Ajustes({ sinGrupos }) {
             </div>
             <button className="boton" onClick={exportar} disabled={exp.ocupado}>{exp.ocupado ? 'Preparando…' : 'Exportar CSV'}</button>
             {exp.msg && <p className="aviso" role="status">{exp.msg}</p>}
+          </section>
+        )}
+
+        {esAdmin && grupo && (
+          <section className="tarjeta pila">
+            <h2 className="subtitulo">Datos de la hoja de Calc</h2>
+            <p className="suave pequeno">Pasa a la web los alumnos, actividades, notas, previsión y fotos de tu archivo Evaluacion_diaria.ods.</p>
+            <Link className="boton" to="/importar">Importar de la hoja de Calc</Link>
           </section>
         )}
 
