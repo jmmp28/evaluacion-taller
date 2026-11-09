@@ -13,3 +13,4 @@ export const IcoFotos = (p) => <svg {...base} {...p}><rect x="3" y="5" width="18
 export const IcoCamara = (p) => <svg {...base} {...p} width={18} height={18}><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
 export const IcoGaleria = (p) => <svg {...base} {...p} width={18} height={18}><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="M21 15l-5-5-8 9" /></svg>
 export const IcoGirar = (p) => <svg {...base} {...p} width={18} height={18}><path d="M20 12a8 8 0 1 1-2.3-5.6" /><path d="M20 4v5h-5" /></svg>
+export const IcoInformes = (p) => <svg {...base} {...p}><path d="M6 3h9l4 4v14H6z" /><path d="M14 3v5h5M9 13h7M9 17h7M9 9h3" /></svg>

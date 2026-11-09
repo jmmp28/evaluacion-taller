@@ -8,6 +8,12 @@ import Hoy from './paginas/Hoy'
 import Sesion from './paginas/Sesion'
 import Alumnos from './paginas/Alumnos'
 import Fotos from './paginas/Fotos'
+import Informes from './paginas/Informes'
+import InfResumen from './paginas/InfResumen'
+import InfAlumno from './paginas/InfAlumno'
+import InfTrabajos from './paginas/InfTrabajos'
+import InfProyectos from './paginas/InfProyectos'
+import Prevision from './paginas/Prevision'
 import Ajustes from './paginas/Ajustes'
 
 export default function App() {
@@ -51,6 +57,12 @@ export default function App() {
           <Route path="/" element={<Hoy />} />
           <Route path="/sesion/:id" element={<Sesion />} />
           <Route path="/fotos" element={<Fotos />} />
+          <Route path="/informes" element={<Informes />} />
+          <Route path="/informes/resumen" element={<InfResumen />} />
+          <Route path="/informes/alumnos" element={<InfAlumno />} />
+          <Route path="/informes/trabajos" element={<InfTrabajos />} />
+          <Route path="/informes/proyectos" element={<InfProyectos />} />
+          <Route path="/prevision" element={<Prevision />} />
           <Route path="/alumnos" element={<Alumnos />} />
           <Route path="/ajustes" element={<Ajustes />} />
           <Route path="/nueva-clave" element={<NuevaClave />} />
