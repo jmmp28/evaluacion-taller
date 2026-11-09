@@ -1,9 +1,10 @@
-# Evaluación del taller · web (fase 1)
+# Evaluación del taller · web (fases 1 y 2)
 
 App web para evaluar a diario desde el móvil. Usa el **mismo proyecto de Supabase que el Inventario** (esquema `evaluacion`) y el mismo inicio de sesión.
 
 **Fase 1 (esta):** entrar · Hoy (cualquier fecha) · evaluar sesiones con notas 0–3/A que se guardan al momento · observaciones automáticas y a mano · actividad Categoría → Proyecto → Tarea (y crear nuevas) · alumnos · exportar CSV · administración de grupos y profesores.
-**Próximas fases:** fotos de los proyectos · informes (resumen, por alumno, trabajos del grupo frente a la previsión, por proyecto en A4) · importar el registro de la hoja de Calc.
+**Fase 2:** fotos de los proyectos desde el móvil (cámara o galería), por mes y proyecto, también desde cada sesión.
+**Próximas fases:** informes (resumen, por alumno, trabajos del grupo frente a la previsión, por proyecto en A4) · importar el registro de la hoja de Calc.
 
 ---
 
@@ -73,6 +74,14 @@ Se abre a pantalla completa, como una app.
 - Un profesor sólo ve sus grupos. Una cuenta que sólo usa el Inventario no ve nada de la evaluación.
 - Para cambiar los colores (por ejemplo, al verde y gris del Inventario) basta con tocar las primeras líneas de `src/estilos.css`.
 
+## Fotos (fase 2)
+
+- No necesita ningún SQL nuevo: el bucket privado `evaluacion-fotos` lo creó el script 01. Compruébalo en Supabase → **Storage**.
+- Se hacen desde **Fotos** (por mes, un bloque por proyecto trabajado ese mes, y «Fotos de otro proyecto») o desde la propia **sesión** (van al proyecto y la fecha de la sesión).
+- El móvil las reduce antes de subirlas: 1600 px (unos 300 KB) y una miniatura de 400 px. Salen derechas aunque el móvil las guarde giradas.
+- Tocando una foto: verla en grande, cambiar la fecha, ponerle pie, **Girar** y **Borrar**.
+- Sólo las ven los profesores del grupo. El plan gratuito de Supabase da 1 GB de almacenamiento: unas 3000 fotos, compartido con el Inventario.
+
 ## Estructura
 
 ```
@@ -81,6 +90,7 @@ sql/02_funciones_admin.sql      alta de profesores por correo
 src/supabase.js                 conexión (esquema «evaluacion»)
 src/contexto.jsx                sesión, profesor y grupo actual
 src/paginas/                    Login, Hoy, Sesion, Alumnos, Ajustes…
-src/componentes/                barra inferior, selector de actividad, panel inferior
+src/fotos.js                    reducir, subir, girar y borrar fotos
+src/componentes/                barra inferior, selector de actividad, panel inferior, visor de fotos
 src/estilos.css                 todos los estilos y colores
 ```
