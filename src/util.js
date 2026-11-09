@@ -72,3 +72,23 @@ export function mensajeError(e) {
   if (m.includes('Failed to fetch')) return 'Sin conexión. Inténtalo de nuevo.'
   return m
 }
+
+// ---- meses (formato AAAA-MM) ----
+export const mesDe = (iso) => iso.slice(0, 7)
+
+export function sumarMeses(mes, n) {
+  const [a, m] = mes.split('-').map(Number)
+  const d = new Date(a, m - 1 + n, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+export function finDeMes(mes) {
+  const [a, m] = mes.split('-').map(Number)
+  return aISO(new Date(a, m, 0))
+}
+
+export function nombreMes(mes) {
+  const [a, m] = mes.split('-').map(Number)
+  const t = `${MESES[m - 1]} ${a}`
+  return t.charAt(0).toUpperCase() + t.slice(1)
+}

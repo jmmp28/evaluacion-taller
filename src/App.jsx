@@ -7,6 +7,7 @@ import SinAcceso from './paginas/SinAcceso'
 import Hoy from './paginas/Hoy'
 import Sesion from './paginas/Sesion'
 import Alumnos from './paginas/Alumnos'
+import Fotos from './paginas/Fotos'
 import Ajustes from './paginas/Ajustes'
 
 export default function App() {
@@ -49,6 +50,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Hoy />} />
           <Route path="/sesion/:id" element={<Sesion />} />
+          <Route path="/fotos" element={<Fotos />} />
           <Route path="/alumnos" element={<Alumnos />} />
           <Route path="/ajustes" element={<Ajustes />} />
           <Route path="/nueva-clave" element={<NuevaClave />} />
