@@ -5,7 +5,10 @@ import { COLOR_NOTA, VALORES_NOTA, colorCategoria, fechaLarga, hoyISO, mensajeEr
 import Chip from '../componentes/Chip'
 import Hoja from '../componentes/Hoja'
 import SelectorActividad from '../componentes/SelectorActividad'
+import BotonesFoto from '../componentes/BotonesFoto'
+import VisorFoto from '../componentes/VisorFoto'
 import { IcoAtras } from '../componentes/Iconos'
+import { CAMPOS_FOTO, enlaces, rutaMini, subirVarias } from '../fotos'
 
 const CAMPOS_EV = 'id, alumno_id, nota, ausente, observacion'
 
@@ -26,6 +29,10 @@ export default function Sesion() {
   const [obsDe, setObsDe] = useState(null)           // alumno_id con la hoja de observación abierta
   const [obsOtra, setObsOtra] = useState('')
   const [detalle, setDetalle] = useState('')
+  const [fotos, setFotos] = useState([])             // fotos de este proyecto en esta fecha
+  const [minis, setMinis] = useState({})
+  const [subiendo, setSubiendo] = useState('')
+  const [visor, setVisor] = useState(null)
 
   const cargarCategorias = useCallback(async () => {
     const { data } = await supabase.from('categorias').select('id, nombre, orden').order('orden').order('nombre')
@@ -62,6 +69,27 @@ export default function Sesion() {
     })()
     cargarCategorias()
   }, [sesionId, cargarSesion, cargarCategorias])
+
+  const proyectoId = sesion?.tarea?.proyecto_id ?? null
+  const cargarFotos = useCallback(async () => {
+    if (!sesion || !proyectoId) { setFotos([]); return }
+    const { data, error: e } = await supabase.from('fotos').select(CAMPOS_FOTO)
+      .eq('grupo_id', sesion.grupo_id).eq('proyecto_id', proyectoId).eq('fecha', sesion.fecha).order('creado')
+    if (e) { setError(mensajeError(e)); return }
+    setFotos(data ?? [])
+    try { setMinis(await enlaces((data ?? []).map((f) => rutaMini(f.ruta)))) } catch { /* sin miniaturas */ }
+  }, [sesion?.grupo_id, sesion?.fecha, proyectoId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { cargarFotos() }, [cargarFotos])
+
+  async function subirFotos(archivos) {
+    setError('')
+    const { fallos } = await subirVarias(archivos, { grupoId: sesion.grupo_id, proyectoId, fecha: sesion.fecha },
+      (n, total) => setSubiendo(total > 1 ? `Subiendo ${n} de ${total}…` : 'Subiendo…'))
+    setSubiendo('')
+    if (fallos.length) setError(`No se han podido subir: ${fallos.join(' · ')}`)
+    await cargarFotos()
+  }
 
   const autos = useMemo(() => new Set(Object.values(auto).filter(Boolean)), [auto])
 
@@ -164,6 +192,27 @@ export default function Sesion() {
           <input value={detalle} onChange={(e) => setDetalle(e.target.value)} onBlur={guardarDetalle} placeholder="Hora, material, observaciones de la sesión…" />
         </label>
 
+        {t && (
+          <section className="tarjeta pila" aria-label="Fotos de la sesión">
+            <div className="fila-alumno">
+              <span className="sesion-titulo">Fotos de {t.proyecto?.nombre}</span>
+              <span className="suave pequeno">{fotos.length ? `${fotos.length} hoy` : 'Ninguna'}</span>
+            </div>
+            {fotos.length > 0 && (
+              <ul className="rejilla-fotos">
+                {fotos.map((f, n) => (
+                  <li key={f.id}>
+                    <button className="miniatura" onClick={() => setVisor(n)} aria-label={`Ver foto ${n + 1}`}>
+                      {minis[rutaMini(f.ruta)] ? <img src={minis[rutaMini(f.ruta)]} alt="" loading="lazy" /> : null}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {subiendo ? <p className="suave" role="status">{subiendo}</p> : <BotonesFoto pequeno onArchivos={subirFotos} />}
+          </section>
+        )}
+
         {error && <p className="error" role="alert">{error}</p>}
         {alumnos.length === 0 && <p className="aviso">No hay alumnos. <Link to="/alumnos">Añádelos aquí.</Link></p>}
 
@@ -211,6 +260,12 @@ export default function Sesion() {
       {verSelector && (
         <SelectorActividad tareaActual={t} categorias={categorias} onCatalogo={cargarCategorias}
           onElegir={elegirActividad} onCerrar={() => setVerSelector(false)} />
+      )}
+
+      {visor !== null && fotos.length > 0 && (
+        <VisorFoto fotos={fotos} inicial={visor} titulo={t?.proyecto?.nombre ?? 'Foto'} grupoId={sesion.grupo_id}
+          onCerrar={() => setVisor(null)} onBorrada={(fid) => setFotos((l) => l.filter((x) => x.id !== fid))}
+          onCambio={(f) => { if (f.fecha !== sesion.fecha) { setVisor(null) } cargarFotos() }} />
       )}
 
       {obsDe && (

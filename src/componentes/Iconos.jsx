@@ -9,3 +9,7 @@ export const IcoAdelante = (p) => <svg {...base} {...p} strokeWidth={2.2}><path 
 export const IcoCheck = (p) => <svg {...base} {...p} strokeWidth={2.4}><path d="M5 12l5 5 9-10" /></svg>
 export const IcoMas = (p) => <svg {...base} {...p} strokeWidth={2.2}><path d="M12 5v14M5 12h14" /></svg>
 export const IcoCerrar = (p) => <svg {...base} {...p} strokeWidth={2.2}><path d="M6 6l12 12M18 6L6 18" /></svg>
+export const IcoFotos = (p) => <svg {...base} {...p}><rect x="3" y="5" width="18" height="15" rx="2.5" /><circle cx="9" cy="10.5" r="1.8" /><path d="M21 16l-5-5-8 9" /></svg>
+export const IcoCamara = (p) => <svg {...base} {...p} width={18} height={18}><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
+export const IcoGaleria = (p) => <svg {...base} {...p} width={18} height={18}><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="M21 15l-5-5-8 9" /></svg>
+export const IcoGirar = (p) => <svg {...base} {...p} width={18} height={18}><path d="M20 12a8 8 0 1 1-2.3-5.6" /><path d="M20 4v5h-5" /></svg>
