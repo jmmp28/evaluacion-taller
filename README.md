@@ -103,11 +103,23 @@ Ajustes → **Importar de la hoja de Calc** (sólo administradores) → elige `E
 - Se puede repetir: lo que ya está en la web se salta (no duplica notas ni fotos). Si un día ya tenía sesión creada en la web, se conserva la de la web.
 - Las categorías y proyectos se pasan a MAYÚSCULAS, como en la web.
 
+## Centros, papeles y cuentas (script 03)
+
+Ejecuta **una vez** `sql/03_centros_y_superadmin.sql` (antes cambia en su sección 7 tu correo, tu nombre y una contraseña inicial).
+
+- **Centros** (ACE Vista Alegre, ACE Pío Baroja…): cada uno tiene sus grupos, profesores, actividades y observaciones, y no ve nada de los demás. Todo lo anterior queda en «ACE Vista Alegre»; «ACE Pío Baroja» empieza vacío.
+- **Superadministrador** (tú): ve todos los centros; en Ajustes → Administración crea centros y grupos, da de alta profesores (si el correo no tiene cuenta, la crea con una contraseña inicial), les pone una contraseña nueva si la olvidan, les asigna grupos y les quita el acceso.
+- **Administrador del centro** (admin@instituto.es en ACE Pío Baroja; deja de ver los grupos de Vista Alegre): ve todos los grupos de su centro e importa de Calc, pero no da altas.
+- **Profesor**: sólo los grupos que tenga marcados.
+- Cualquiera puede cambiar su contraseña en Ajustes → Mi contraseña (es la misma cuenta que la del Inventario).
+
 ## Estructura
 
 ```
 sql/01_evaluacion_esquema.sql   tablas, permisos (RLS), bucket de fotos
 sql/02_funciones_admin.sql      alta de profesores por correo
+sql/03_centros_y_superadmin.sql centros, papeles, superadmin y cuentas desde la web
+sql/04_corregir_centros.sql     sólo si se ejecutó la 1.ª versión del 03 (pasa el taller a Vista Alegre)
 src/supabase.js                 conexión (esquema «evaluacion»)
 src/contexto.jsx                sesión, profesor y grupo actual
 src/paginas/                    Login, Hoy, Sesion, Alumnos, Ajustes…

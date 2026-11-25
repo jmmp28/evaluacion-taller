@@ -18,7 +18,7 @@ export function ProveedorApp({ children }) {
   }, [])
 
   const cargarGrupos = useCallback(async () => {
-    const { data } = await supabase.from('grupos').select('id, nombre, curso')
+    const { data } = await supabase.from('grupos').select('id, nombre, curso, centro_id, centro:centros(nombre)')
       .eq('activo', true).order('curso', { ascending: false }).order('nombre')
     setGrupos(data ?? [])
     return data ?? []
@@ -30,7 +30,7 @@ export function ProveedorApp({ children }) {
     let vivo = true
     ;(async () => {
       setErrorCarga('')
-      const { data, error } = await supabase.from('profesores').select('user_id, nombre, rol, activo')
+      const { data, error } = await supabase.from('profesores').select('user_id, nombre, rol, activo, centro_id, centro:centros(nombre)')
         .eq('user_id', sesion.user.id).maybeSingle()
       if (!vivo) return
       if (error) { setErrorCarga(error.message || 'Sin conexión'); setProfesor(null); return }
@@ -51,7 +51,10 @@ export function ProveedorApp({ children }) {
 
   return (
     <Ctx.Provider value={{
-      sesion, profesor, esAdmin: profesor?.rol === 'admin',
+      sesion, profesor,
+      esSuper: profesor?.rol === 'superadmin',                              // gestiona todo
+      esAdmin: profesor?.rol === 'superadmin' || profesor?.rol === 'admin', // ve todos los grupos de su centro
+      centroId: grupo?.centro_id ?? null,                                   // centro del grupo con el que se trabaja
       grupos, grupo, setGrupoId, cargarGrupos, cargando, errorCarga,
       salir: () => supabase.auth.signOut(),
     }}>

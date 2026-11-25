@@ -25,7 +25,7 @@ export default function Hoy() {
       supabase.from('sesiones')
         .select('id, numero, detalle, tarea:tareas(id, nombre, categoria_id, categoria:categorias(nombre), proyecto:proyectos(nombre)), evaluaciones(count)')
         .eq('grupo_id', grupo.id).eq('fecha', fecha).order('numero'),
-      supabase.from('categorias').select('id, nombre, orden').order('orden').order('nombre'),
+      supabase.from('categorias').select('id, nombre, orden').eq('centro_id', grupo.centro_id).order('orden').order('nombre'),
       supabase.from('alumnos').select('id', { count: 'exact', head: true }).eq('grupo_id', grupo.id).eq('activo', true),
     ])
     if (s.error) setError(mensajeError(s.error))

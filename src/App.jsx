@@ -18,7 +18,7 @@ import Importar from './paginas/Importar'
 import Ajustes from './paginas/Ajustes'
 
 export default function App() {
-  const { sesion, profesor, grupo, esAdmin, cargando, errorCarga, salir } = useApp()
+  const { sesion, profesor, grupo, esSuper, cargando, errorCarga, salir } = useApp()
 
   if (cargando) return <div className="pantalla-centro"><p className="suave">Cargando…</p></div>
 
@@ -46,7 +46,7 @@ export default function App() {
 
   // sin grupos: el admin va a Ajustes a crear uno; un profesor espera a que se lo asignen
   if (!grupo) {
-    return esAdmin
+    return esSuper
       ? <div className="app"><Ajustes sinGrupos /></div>
       : <SinAcceso sinGrupo />
   }

@@ -86,7 +86,7 @@ export default function Fotos() {
 
   async function abrirOtro() {
     setElegirOtro(true)
-    const { data, error: e } = await supabase.from('proyectos').select('id, nombre').eq('activo', true).order('nombre')
+    const { data, error: e } = await supabase.from('proyectos').select('id, nombre').eq('centro_id', grupo.centro_id).eq('activo', true).order('nombre')
     if (e) setError(mensajeError(e))
     setTodos(data ?? [])
   }

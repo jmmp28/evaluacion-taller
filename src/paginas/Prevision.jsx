@@ -23,15 +23,16 @@ export default function Prevision() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('proyectos').select('id, nombre, activo').order('nombre'),
-      supabase.from('categorias').select('id, nombre').order('orden').order('nombre'),
-      supabase.from('tareas').select('id, nombre, categoria_id, proyecto_id').order('nombre'),
+      supabase.from('proyectos').select('id, nombre, activo').eq('centro_id', grupo.centro_id).order('nombre'),
+      supabase.from('categorias').select('id, nombre').eq('centro_id', grupo.centro_id).order('orden').order('nombre'),
+      supabase.from('tareas').select('id, nombre, categoria_id, proyecto_id, categoria:categorias!inner(centro_id)')
+        .eq('categoria.centro_id', grupo.centro_id).order('nombre'),
     ]).then(([p, c, t]) => {
       const e = p.error || c.error || t.error
       if (e) setMsg({ error: mensajeError(e), aviso: '' })
       setProyectos(p.data ?? []); setCategorias(c.data ?? []); setTareas(t.data ?? [])
     })
-  }, [])
+  }, [grupo.centro_id])
 
   const cargar = useCallback(async () => {
     const { data, error } = await supabase.from('prevision')

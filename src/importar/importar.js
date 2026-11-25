@@ -22,7 +22,9 @@ async function enTrozos(lista, n, fn) {
 
 const k3 = (a, b, c) => `${a}\u0001${b}\u0001${(c ?? '').toLowerCase()}`
 
-export async function importar(datos, grupoId, avisar) {
+export async function importar(datos, grupo, avisar) {
+  const grupoId = grupo.id
+  const centroId = grupo.centro_id   // actividades y observaciones son de cada centro
   const res = {}
   const paso = (t) => avisar?.(t)
 
@@ -30,41 +32,41 @@ export async function importar(datos, grupoId, avisar) {
   paso('Observaciones…')
   if (datos.observaciones.length) {
     const { data, error } = await supabase.from('observaciones')
-      .upsert(datos.observaciones.map((texto, i) => ({ texto, orden: i + 1 })), { onConflict: 'texto', ignoreDuplicates: true }).select('id')
+      .upsert(datos.observaciones.map((texto, i) => ({ centro_id: centroId, texto, orden: i + 1 })), { onConflict: 'centro_id,texto', ignoreDuplicates: true }).select('id')
     if (error) throw error
     res.observaciones = data.length
   }
-  const auto = Object.entries(datos.autoNota).map(([nota, observacion]) => ({ nota, observacion }))
+  const auto = Object.entries(datos.autoNota).map(([nota, observacion]) => ({ centro_id: centroId, nota, observacion }))
   if (auto.length) {
-    const { error } = await supabase.from('observacion_por_nota').upsert(auto, { onConflict: 'nota' })
+    const { error } = await supabase.from('observacion_por_nota').upsert(auto, { onConflict: 'centro_id,nota' })
     if (error) throw error
   }
 
   // ---- catálogo: categorías, proyectos y tareas
   paso('Actividades…')
-  const cats = await todas(() => supabase.from('categorias').select('id, nombre, orden').order('id'))
+  const cats = await todas(() => supabase.from('categorias').select('id, nombre, orden').eq('centro_id', centroId).order('id'))
   const catId = Object.fromEntries(cats.map((c) => [c.nombre.toLocaleUpperCase('es'), c.id]))
   let orden = Math.max(0, ...cats.map((c) => c.orden ?? 0))
   const proyNombres = new Set([...datos.actividades.map((a) => a.proy), ...datos.prevision.map((p) => p.proy), ...datos.fotos.map((f) => f.proy)])
   const catNuevas = [...new Set([...datos.actividades.map((a) => a.cat), ...datos.prevision.map((p) => p.cat).filter(Boolean)])].filter((c) => !catId[c])
   if (catNuevas.length) {
-    const { data, error } = await supabase.from('categorias').insert(catNuevas.map((nombre) => ({ nombre, orden: ++orden }))).select('id, nombre')
+    const { data, error } = await supabase.from('categorias').insert(catNuevas.map((nombre) => ({ nombre, orden: ++orden, centro_id: centroId }))).select('id, nombre')
     if (error) throw error
     for (const c of data) catId[c.nombre] = c.id
   }
   res.categorias = catNuevas.length
 
-  const proys = await todas(() => supabase.from('proyectos').select('id, nombre').order('id'))
+  const proys = await todas(() => supabase.from('proyectos').select('id, nombre').eq('centro_id', centroId).order('id'))
   const proyId = Object.fromEntries(proys.map((p) => [p.nombre.toLocaleUpperCase('es'), p.id]))
   const proyNuevos = [...proyNombres].filter((p) => p && !proyId[p])
   if (proyNuevos.length) {
-    const { data, error } = await supabase.from('proyectos').insert(proyNuevos.map((nombre) => ({ nombre }))).select('id, nombre')
+    const { data, error } = await supabase.from('proyectos').insert(proyNuevos.map((nombre) => ({ nombre, centro_id: centroId }))).select('id, nombre')
     if (error) throw error
     for (const p of data) proyId[p.nombre] = p.id
   }
   res.proyectos = proyNuevos.length
 
-  const tareas = await todas(() => supabase.from('tareas').select('id, nombre, categoria_id, proyecto_id').order('id'))
+  const tareas = await todas(() => supabase.from('tareas').select('id, nombre, categoria_id, proyecto_id, categoria:categorias!inner(centro_id)').eq('categoria.centro_id', centroId).order('id'))
   const tareaId = Object.fromEntries(tareas.map((t) => [k3(t.categoria_id, t.proyecto_id, t.nombre), t.id]))
   const tNuevas = datos.actividades
     .map((a) => ({ categoria_id: catId[a.cat], proyecto_id: proyId[a.proy], nombre: a.tarea }))

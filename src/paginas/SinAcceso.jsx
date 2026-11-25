@@ -1,13 +1,16 @@
 import { useApp } from '../contexto'
 
 export default function SinAcceso({ sinGrupo }) {
-  const { sesion, salir } = useApp()
+  const { sesion, profesor, salir } = useApp()
+  const centro = profesor?.centro?.nombre
   return (
     <main className="pantalla-centro">
       <div className="tarjeta acceso">
         <h1 className="titulo">{sinGrupo ? 'Aún no tienes grupos' : 'Sin acceso a la evaluación'}</h1>
         <p>
-          {sinGrupo
+          {sinGrupo && profesor?.rol === 'admin'
+            ? `Eres administrador de ${centro ?? 'tu centro'}, pero aún no tiene grupos. Cuando el superadministrador los cree, los verás aquí.`
+            : sinGrupo
             ? 'Tu cuenta ya está dada de alta. Pide al administrador que te asigne un grupo.'
             : 'Tu cuenta funciona, pero no está dada de alta como profesor en esta aplicación. Pídeselo al administrador.'}
         </p>

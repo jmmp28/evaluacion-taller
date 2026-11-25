@@ -5,7 +5,7 @@ import Hoja from './Hoja'
 import { IcoCheck, IcoMas } from './Iconos'
 
 // Elegir CATEGORÍA → PROYECTO → TAREA (o crear nuevas). Devuelve el id de la tarea.
-export default function SelectorActividad({ tareaActual, categorias, onCatalogo, onElegir, onCerrar }) {
+export default function SelectorActividad({ centroId, tareaActual, categorias, onCatalogo, onElegir, onCerrar }) {
   const [tareas, setTareas] = useState([])
   const [catId, setCatId] = useState(tareaActual?.categoria_id ?? null)
   const [proy, setProy] = useState(tareaActual?.proyecto ? { id: tareaActual.proyecto_id, nombre: tareaActual.proyecto.nombre } : null)
@@ -16,9 +16,11 @@ export default function SelectorActividad({ tareaActual, categorias, onCatalogo,
   const [guardando, setGuardando] = useState(false)
 
   useEffect(() => {
-    supabase.from('tareas').select('id, nombre, categoria_id, proyecto_id, proyecto:proyectos(id, nombre, activo)')
+    // tareas del centro (el centro de una tarea es el de su categoría)
+    supabase.from('tareas').select('id, nombre, categoria_id, proyecto_id, proyecto:proyectos(id, nombre, activo), categoria:categorias!inner(centro_id)')
+      .eq('categoria.centro_id', centroId)
       .order('nombre').then(({ data, error: e }) => { if (e) setError(mensajeError(e)); setTareas(data ?? []) })
-  }, [])
+  }, [centroId])
 
   const proyectos = useMemo(() => {
     const m = new Map()
@@ -43,7 +45,7 @@ export default function SelectorActividad({ tareaActual, categorias, onCatalogo,
         let c = categorias.find((x) => x.nombre.toUpperCase() === nombre)
         if (!c) {
           const orden = Math.max(0, ...categorias.map((x) => x.orden ?? 0)) + 1
-          const r = await supabase.from('categorias').insert({ nombre, orden }).select('id, nombre, orden').single()
+          const r = await supabase.from('categorias').insert({ nombre, orden, centro_id: centroId }).select('id, nombre, orden').single()
           if (r.error) throw r.error
           c = r.data
           await onCatalogo()
@@ -51,10 +53,10 @@ export default function SelectorActividad({ tareaActual, categorias, onCatalogo,
         setCatId(c.id); setProy(null); setTareaId(null)
       } else if (nuevo.tipo === 'proyecto') {
         const nombre = texto.toUpperCase()
-        let r = await supabase.from('proyectos').select('id, nombre, activo').eq('nombre', nombre).maybeSingle()
+        let r = await supabase.from('proyectos').select('id, nombre, activo').eq('centro_id', centroId).eq('nombre', nombre).maybeSingle()
         if (r.error) throw r.error
         if (!r.data) {
-          r = await supabase.from('proyectos').insert({ nombre }).select('id, nombre, activo').single()
+          r = await supabase.from('proyectos').insert({ nombre, centro_id: centroId }).select('id, nombre, activo').single()
           if (r.error) throw r.error
         }
         setProyNuevos((l) => [...l.filter((p) => p.id !== r.data.id), r.data])

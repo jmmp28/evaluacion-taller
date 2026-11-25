@@ -34,14 +34,16 @@ export default function Sesion() {
   const [subiendo, setSubiendo] = useState('')
   const [visor, setVisor] = useState(null)
 
+  const centroId = sesion?.grupo?.centro_id ?? null
   const cargarCategorias = useCallback(async () => {
-    const { data } = await supabase.from('categorias').select('id, nombre, orden').order('orden').order('nombre')
+    if (!centroId) return
+    const { data } = await supabase.from('categorias').select('id, nombre, orden').eq('centro_id', centroId).order('orden').order('nombre')
     setCategorias(data ?? [])
-  }, [])
+  }, [centroId])
 
   const cargarSesion = useCallback(async () => {
     const { data, error: e } = await supabase.from('sesiones')
-      .select('id, fecha, numero, detalle, grupo_id, tarea:tareas(id, nombre, categoria_id, proyecto_id, categoria:categorias(nombre), proyecto:proyectos(nombre))')
+      .select('id, fecha, numero, detalle, grupo_id, grupo:grupos(centro_id), tarea:tareas(id, nombre, categoria_id, proyecto_id, categoria:categorias(nombre), proyecto:proyectos(nombre))')
       .eq('id', sesionId).maybeSingle()
     if (e) setError(mensajeError(e))
     setSesion(data)
@@ -57,8 +59,8 @@ export default function Sesion() {
         supabase.from('alumnos').select('id, apellidos_nombre, activo, orden').eq('grupo_id', s.grupo_id)
           .order('orden', { nullsFirst: false }).order('apellidos_nombre'),
         supabase.from('evaluaciones').select(CAMPOS_EV).eq('sesion_id', sesionId),
-        supabase.from('observacion_por_nota').select('nota, observacion'),
-        supabase.from('observaciones').select('texto').order('orden').order('texto'),
+        supabase.from('observacion_por_nota').select('nota, observacion').eq('centro_id', s.grupo.centro_id),
+        supabase.from('observaciones').select('texto').eq('centro_id', s.grupo.centro_id).order('orden').order('texto'),
       ])
       const porAlumno = Object.fromEntries((ev.data ?? []).map((e) => [e.alumno_id, e]))
       // activos, y los dados de baja sólo si ya tienen nota en esta sesión
@@ -67,8 +69,9 @@ export default function Sesion() {
       setAuto(Object.fromEntries((an.data ?? []).map((x) => [x.nota, x.observacion])))
       setObservaciones((ob.data ?? []).map((x) => x.texto))
     })()
-    cargarCategorias()
-  }, [sesionId, cargarSesion, cargarCategorias])
+  }, [sesionId, cargarSesion])
+
+  useEffect(() => { cargarCategorias() }, [cargarCategorias])
 
   const proyectoId = sesion?.tarea?.proyecto_id ?? null
   const cargarFotos = useCallback(async () => {
@@ -258,7 +261,7 @@ export default function Sesion() {
       </footer>
 
       {verSelector && (
-        <SelectorActividad tareaActual={t} categorias={categorias} onCatalogo={cargarCategorias}
+        <SelectorActividad centroId={centroId} tareaActual={t} categorias={categorias} onCatalogo={cargarCategorias}
           onElegir={elegirActividad} onCerrar={() => setVerSelector(false)} />
       )}
 

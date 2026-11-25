@@ -4,6 +4,7 @@ import { mensajeError, fechaCorta } from '../util'
 import CabeceraInforme from '../componentes/CabeceraInforme'
 import { leerOds } from '../importar/leerOds'
 import { importar } from '../importar/importar'
+import { nombreGrupo } from './Ajustes'
 
 // Sólo administradores: pasar a la web los datos de la hoja de Calc (.ods)
 export default function Importar() {
@@ -27,7 +28,7 @@ export default function Importar() {
 
   async function empezar() {
     setError(''); setRes(null)
-    try { setRes(await importar(datos, grupo.id, setEstado)) } catch (err) { setError(mensajeError(err)); setEstado('') }
+    try { setRes(await importar(datos, grupo, setEstado)) } catch (err) { setError(mensajeError(err)); setEstado('') }
   }
 
   const fechas = datos?.registro.map((r) => r.fecha).sort() ?? []
@@ -66,7 +67,7 @@ export default function Importar() {
             {grupos.length > 1 ? (
               <label className="campo"><span>Importar en el grupo</span>
                 <select value={grupo.id} onChange={(e) => setGrupoId(Number(e.target.value))} disabled={ocupado}>
-                  {grupos.map((g) => <option key={g.id} value={g.id}>{g.nombre} · {g.curso}</option>)}
+                  {grupos.map((g) => <option key={g.id} value={g.id}>{nombreGrupo(g, grupos)}</option>)}
                 </select>
               </label>
             ) : <p className="pequeno">Se importa en el grupo <strong>{grupo.nombre}</strong>.</p>}
